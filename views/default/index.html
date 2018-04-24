@@ -14,6 +14,13 @@
 
   {{for cl in checklists:}}
       <div class="memo">
+          <a class="btn" href="{{=URL('default', 'toggle_public', args=[cl.id], user_signature=True)}}">
+              {{if cl.is_public == True:}}
+                    <i class="fa fa-users"></i>
+              {{else:}}
+                    <i class="fa fa-user"></i>
+              {{pass}}
+          </a>
         <div class="memo_text">
           <div class="memo_title">{{=cl.title}}</div>
           <div class="memo_content">{{=cl.memo}}</div>

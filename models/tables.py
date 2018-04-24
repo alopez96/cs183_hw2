@@ -6,6 +6,9 @@
 #       'date','time','datetime','blob','upload', 'reference TABLENAME'
 # There is an implicit 'id integer autoincrement' field
 # Consult manual for more options, validators, etc.
+#models- to manage database
+#add field to checklist table
+
 
 import datetime
 
@@ -17,7 +20,8 @@ db.define_table('checklist',
                 Field('user_email', default=get_user_email()),
                 Field('title'),
                 Field('memo', 'text'),
-                Field('updated_on', 'datetime', update=datetime.datetime.utcnow())
+                Field('updated_on', 'datetime', update=datetime.datetime.utcnow()),
+                Field('is_public', 'boolean', default=False)
                 )
 
 db.checklist.user_email.writable = False

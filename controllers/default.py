@@ -24,6 +24,8 @@ def index():
     return dict(checklists=checklists)
 
 
+
+
 def no_swearing(form):
     if 'fool' in form.vars.memo:
         form.errors.memo = T('No swearing please')
@@ -38,6 +40,8 @@ def add():
         session.flash = T('Please correct the info')
     return dict(form=form)
 
+
+
 @auth.requires_login()
 @auth.requires_signature()
 def delete():
@@ -46,6 +50,28 @@ def delete():
              (db.checklist.id == request.args(0)))
         db(q).delete()
     redirect(URL('default', 'index'))
+
+
+
+@auth.requires_login()
+def toggle_public():
+    if request.args(0) is None:
+        raise HTTP(500)
+    q = ((db.checklist.user_email == auth.user.email) &
+         (db.checklist.id == request.args(0)))
+    cl = db(q).select().first()
+    if cl is not None:
+        if cl.is_public is False:
+            logger.info("is_public is false")
+            cl.update_record(is_public=True)
+        else:
+            cl.update_record(is_public=False)
+            logger.info("is_public is true")
+    redirect(URL('default', 'index'))
+
+
+
+
 
 
 @auth.requires_login()
