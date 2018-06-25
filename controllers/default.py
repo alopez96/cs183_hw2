@@ -20,7 +20,9 @@ def index():
     logger.info('The session is: %r' % session)
     checklists = None
     if auth.user is not None:
-        checklists = db(db.checklist.user_email == auth.user.email).select()
+        checklists = db((db.checklist.user_email == auth.user.email) | (db.checklist.is_public == True)).select(db.checklist.ALL)
+    else:
+        checklists = db(db.checklist.is_public == True).select(db.checklist.ALL)
     return dict(checklists=checklists)
 
 
@@ -32,12 +34,15 @@ def no_swearing(form):
 
 def add():
     """Adds a checklist."""
+    db.checklist.is_public.writable = False
+    db.checklist.is_public.readable = False
     form = SQLFORM(db.checklist)
     if form.process(onvalidation=no_swearing).accepted:
         session.flash = T("Checklist added.")
         redirect(URL('default','index'))
     elif form.errors:
         session.flash = T('Please correct the info')
+
     return dict(form=form)
 
 
@@ -49,7 +54,11 @@ def delete():
         q = ((db.checklist.user_email == auth.user.email) &
              (db.checklist.id == request.args(0)))
         db(q).delete()
-    redirect(URL('default', 'index'))
+        cl = db(q).select().first()
+        if cl is None:
+            session.flash = T('Not Authorized')
+            redirect(URL('default', 'index'))
+
 
 
 
@@ -76,6 +85,8 @@ def toggle_public():
 
 @auth.requires_login()
 def edit():
+    db.checklist.is_public.writable = False
+    db.checklist.is_public.readable = False
     """
     - "/edit/3" it offers a form to edit a checklist.
     'edit' is the controller (this function)
@@ -102,6 +113,8 @@ def edit():
             redirect(URL('default', 'index'))
         elif form.errors:
             session.flash = T('Please enter correct values.')
+
+
     return dict(form=form)
 
 def user():
@@ -120,6 +133,7 @@ def user():
     to decorate functions that need access control
     also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
     """
+
     return dict(form=auth())
 
 
@@ -140,5 +154,3 @@ def call():
     supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
     """
     return service()
-
-

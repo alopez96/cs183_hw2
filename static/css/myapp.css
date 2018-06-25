@@ -41,3 +41,15 @@ div.memo div.button_list div.buttons {
 div.memo div.button_list a.btn {
   padding: 10px;
 }
+
+/* Done by hand */
+.disabled {
+    background-color: gray;
+    box-shadow: none;
+    outline: none;
+}
+
+.disabled:hover {
+    box-shadow: none;
+    cursor: default;
+}
